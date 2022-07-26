@@ -1,0 +1,46 @@
+public class AccTriggersMethods
+{
+    public static void InsertMethod(Account a)
+    {
+        Opportunity op = new Opportunity(AccountID = a.ID);
+        Date Tod = Date.today();
+       	op.Name = a.Name + ' ' + Tod.month() + '.' + Tod.year();
+        system.debug(op.Name);
+        op.CloseDate = Date.today();
+        op.CloseDate.addDays(90);
+        op.StageName = 'Prospecting';
+        insert op;
+    }
+    
+    public static void UpdateMethod(Account a)
+    {
+    	for(Opportunity op : [SELECT Name FROM Opportunity WHERE AccountID =: a.ID])
+       	{
+        	if(op.Name != a.Name)
+       	    {
+             	op.Name = a.Name;
+            }
+        }
+    }
+    
+    public static void DeleteMethod(Account a)
+    {    
+        string[] UserEmail = new string[] {UserInfo.getUserEmail()};
+        string[] MyEmail = new string[] {'vitalijgukstudy@gmail.com'};
+        Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+        mail.setToAddresses(UserEmail);
+        mail.setCcAddresses(MyEmail);
+        mail.setReplyTo(MyEmail[0]);
+        mail.setSenderDisplayName('Vitaliy Huk');
+        mail.setSubject('Opporutunities deleting');
+        string Body = 'Hi ' + UserInfo.getName() + ', Due to deletion of Account ' + a.Name + ' all next related Opportunities were deleted as well:\n';
+        integer i = 1;
+        for(Opportunity op : [SELECT ID FROM Opportunity WHERE AccountID =: a.ID])
+        {
+         	Body = Body + i + '. ' + op.ID + ', ' + op.Name + ', ' + op.Amount + '\n'; 
+            delete op;
+        }
+        mail.setPlainTextBody(Body);
+        Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
+    }
+}
