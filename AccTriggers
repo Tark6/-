@@ -1,0 +1,26 @@
+trigger AccTrigger on Account (after insert, before update, before delete) {
+    for(Account a : Trigger.new)
+    {
+        if(Trigger.isInsert)
+        {
+            if(Trigger.isAfter)
+        	{
+        		AccTriggersMethods.InsertMethod(a);
+        	}
+        }
+        if(Trigger.isUpdate)
+        {
+            if(Trigger.isBefore)
+            {
+                AccTriggersMethods.UpdateMethod(a);
+            }
+        }
+        if(Trigger.isDelete)
+        {
+            if(Trigger.isBefore)
+            {
+                AccTriggersMethods.DeleteMethod(a);
+            }
+        }
+    }   
+}
